@@ -1,4 +1,4 @@
-import { Permission } from 'src/user/entities/permission.entity';
+import { Role } from 'src/user/entities/role.entity';
 import {
   Column,
   CreateDateColumn,
@@ -40,9 +40,9 @@ export class User {
   @CreateDateColumn()
   updatedAt: Date;
 
-  @ManyToMany(() => Permission)
+  @ManyToMany(() => Role)
   @JoinTable({
-    name: 'jwt_user_permissions',
+    name: 'jwt_user_roles',
   })
-  permissions: Permission[];
+  roles: Role[];
 }

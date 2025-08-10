@@ -1,11 +1,16 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoginGuard } from 'src/login.guard';
+import { Permission } from 'src/user/entities/permission.entity';
+import { Role } from 'src/user/entities/role.entity';
+import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
-import { JwtModule } from '@nestjs/jwt';
-import { Permission } from 'src/user/entities/permission.entity';
+import { UserModule } from './user/user.module';
+import { PermissionRbacGuard } from 'src/permission-rbac.guard';
 
 @Module({
   imports: [
@@ -17,7 +22,7 @@ import { Permission } from 'src/user/entities/permission.entity';
       password: 'Rz9NmExkzR7kNt3T',
       database: 'hoanganh2',
       synchronize: true,
-      entities: [User, Permission],
+      entities: [User, Permission, Role],
       logging: true,
       migrations: [],
       subscribers: [],
@@ -28,8 +33,19 @@ import { Permission } from 'src/user/entities/permission.entity';
       signOptions: { expiresIn: '1h' },
     }),
     UserModule,
+    AdminModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: LoginGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionRbacGuard,
+    },
+  ],
 })
 export class AppModule {}

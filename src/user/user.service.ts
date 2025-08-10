@@ -9,6 +9,7 @@ import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 import { Permission } from 'src/user/entities/permission.entity';
 import { User } from 'src/user/entities/user.entity';
 import { LoginUserVo } from 'src/user/vo/login-user.vo';
+import { Role } from 'src/user/entities/role.entity';
 
 function md5(password: string) {
   const hash = createHash('md5');
@@ -20,6 +21,9 @@ function md5(password: string) {
 export class UserService {
   @InjectRepository(User)
   private readonly userRepository: Repository<User>;
+
+  @InjectRepository(Role)
+  private readonly roleRepository: Repository<Role>;
 
   @Inject(JwtService)
   private readonly jwtService: JwtService;
@@ -75,5 +79,13 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async getRolesByUserId(id: number) {
+    const roles = await this.roleRepository.find({
+      where: { id },
+      relations: ['permissions'],
+    });
+    return roles;
   }
 }
